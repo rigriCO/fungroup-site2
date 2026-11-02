@@ -358,19 +358,30 @@ def create_profile():
             file = request.files['image']
             if file and file.filename != '':
                 filename = secure_filename(file.filename)
-                os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-                image_path = f'/static/uploads/{filename}'
+                upload_folder = app.config['UPLOAD_FOLDER']
+                
+                # Создаем папку с абсолютным путем, если её нет
+                os.makedirs(upload_folder, exist_ok=True)
+                
+                try:
+                    file.save(os.path.join(upload_folder, filename))
+                    image_path = f'/static/uploads/{filename}'
+                except Exception as e:
+                    print(f"Ошибка сохранения файла: {e}")
         
         if description and game_id:
-            conn.execute('''
-                INSERT INTO profiles (game_id, username, description, image_path)
-                VALUES (?, ?, ?, ?)
-            ''', (game_id, username, description, image_path))
-            conn.commit()
-            conn.close()
-            flash('Объявление успешно создано!', 'success')
-            return redirect(url_for('index'))
+            try:
+                conn.execute('''
+                    INSERT INTO profiles (game_id, username, description, image_path)
+                    VALUES (?, ?, ?, ?)
+                ''', (game_id, username, description, image_path))
+                conn.commit()
+                conn.close()
+                flash('Объявление успешно создано!', 'success')
+                return redirect(url_for('index'))
+            except Exception as e:
+                print(f"Ошибка базы данных: {e}")
+                flash('Произошла ошибка при сохранении в базу данных.', 'error')
         else:
             flash('Заполните информацию о себе и выберите игру!', 'error')
             
