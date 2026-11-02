@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .game-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
+    .back-arrow-btn { font-size: 22px; text-decoration: none; color: #007bff; font-weight: bold; background: rgba(0,123,255,0.1); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .create-ad-btn { background: var(--card-bg); border: 2px solid var(--border-color); padding: 12px 20px; border-radius: 8px; font-weight: bold; color: var(--text-color); text-decoration: none; transition: 0.2s; white-space: nowrap; }
+    .create-ad-btn:hover { border-color: #007bff; color: #007bff; }
+    
+    .search-desc-box { margin-bottom: 25px; }
+    .search-desc-input { width: 100%; max-width: 450px; padding: 10px 14px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); border-radius: 6px; font-size: 15px; }
+
+    .profile-card { display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px 20px; margin-bottom: 15px; text-decoration: none; color: var(--text-color); transition: 0.2s; gap: 20px; }
+    .profile-card:hover { border-color: #007bff; background: rgba(0, 123, 255, 0.02); }
+    .profile-desc-text { flex: 1; font-size: 14px; line-height: 1.5; white-space: pre-wrap; }
+    
+    .profile-avatar-box { width: 70px; height: 70px; border: 1px solid var(--border-color); border-radius: 6px; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #eee; flex-shrink: 0; }
+    .profile-avatar-box img { width: 100%; height: 100%; object-fit: cover; }
+    
+    .no-profiles { text-align: center; opacity: 0.6; padding: 30px; font-size: 15px; }
+</style>
+
+<div class="game-header-row">
+    <div style="display: flex; align-items: center; gap: 15px;">
+        <a href="/" class="back-arrow-btn" title="Back">←</a>
+        <h2 style="margin: 0;">{{ game.name }}</h2>
+    </div>
+    <!-- Жесткая проверка языка прямо в шаблоне гарантирует, что надпись никогда не пропадет -->
+    <a href="/create_profile" class="create-ad-btn">
+        {% if current_lang == 'en' %}Create listing{% elif current_lang == 'uk' %}Створити оголошення{% else %}Выложить своё объявление{% endif %}
+    </a>
+</div>
+
+<div class="search-desc-box">
+    <form method="GET" action="/game/{{ game.slug }}">
+        <div style="font-weight: bold; margin-bottom: 6px; font-size: 14px;">{{ t.search_desc }}</div>
+        <input type="text" name="q" class="search-desc-input" placeholder="{{ t.search_desc_placeholder }}" value="{{ search_query }}">
+    </form>
+    <small style="opacity: 0.6; font-size: 12px;">{{ t.search_desc_hint }}</small>
+</div>
+
+<div class="profiles-list">
+    {% for profile in profiles %}
+    <a href="/start_chat/{{ profile.username }}" class="profile-card">
+        <div class="profile-desc-text">
+            <strong style="color: #007bff; display: block; margin-bottom: 4px;">{{ profile.username }}</strong>
+            {{ profile.description }}
+        </div>
+        <div class="profile-avatar-box">
+            {% if profile.image_path %}
+                <img src="{{ profile.image_path }}" alt="photo">
+            {% else %}
+                <span style="font-weight: bold; font-size: 20px; color: #888;">{{ profile.username[0] | upper }}</span>
+            {% endif %}
+        </div>
+    </a>
+    {% else %}
+    <div class="no-profiles">
+        {{ t.no_profiles }}
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block sidebar %}
+<div class="stat-card">
+    <h4>{{ t.category }}</h4>
+    <div class="stat-value" style="color: #007bff;">{{ game.name }}</div>
+</div>
+{% endblock %}

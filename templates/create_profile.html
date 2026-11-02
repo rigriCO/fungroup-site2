@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .form-container { max-width: 600px; margin: 0 auto; }
+    .form-group { margin-bottom: 20px; }
+    .form-label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 14px; }
+    .form-select, .form-textarea { width: 100%; padding: 12px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); border-radius: 6px; font-size: 14px; }
+    .form-textarea { resize: vertical; min-height: 120px; }
+    
+    .file-upload-box { border: 2px dashed var(--border-color); padding: 25px; text-align: center; border-radius: 8px; cursor: pointer; background: rgba(0,0,0,0.01); transition: 0.2s; }
+    .file-upload-box:hover { border-color: #007bff; background: rgba(0, 123, 255, 0.02); }
+    
+    .submit-btn { background: #28a745; color: white; border: none; padding: 12px 24px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer; width: 100%; transition: 0.2s; }
+    .submit-btn:hover { background: #218838; }
+</style>
+
+<div class="form-container">
+    <a href="javascript:history.back()" style="text-decoration: none; color: #007bff; font-weight: bold; display: inline-block; margin-bottom: 15px;">{{ t.back_to_main }}</a>
+    <h2 style="margin-top: 0; margin-bottom: 20px;">{{ t.create_ad_title }}</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div style="padding: 12px; margin-bottom: 15px; background: #ffdddd; color: #d9534f; border-radius: 6px; font-weight: bold; border: 1px solid #d9534f;">⚠️ {{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST" enctype="multipart/form-data">
+        <div class="form-group">
+            <label class="form-label">{{ t.your_game }}</label>
+            <select name="game_id" class="form-select" required>
+                <option value="" disabled selected>{{ t.select_game }}</option>
+                {% for game in games %}
+                    <option value="{{ game.id }}">{{ game.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">{{ t.about_self }}</label>
+            <textarea name="description" class="form-textarea" placeholder="{{ t.about_placeholder }}" required></textarea>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">{{ t.photo_label }}</label>
+            <label class="file-upload-box" style="display: block;">
+                <span style="opacity: 0.7; display: block; margin-bottom: 8px;">🖼️ {{ t.photo_drag }}</span>
+                <input type="file" name="image" accept="image/*" style="display: none;" onchange="updateFileName(this)">
+                <span id="fileName" style="font-weight: bold; color: #007bff;">{{ t.add_photo }}</span>
+            </label>
+        </div>
+
+        <button type="submit" class="submit-btn">{{ t.publish_btn }}</button>
+    </form>
+</div>
+
+<script>
+    function updateFileName(input) {
+        const fileNameSpan = document.getElementById('fileName');
+        if (input.files && input.files[0]) {
+            fileNameSpan.textContent = "📂 " + input.files[0].name;
+        }
+    }
+</script>
+{% endblock %}
+
+{% block sidebar %}
+<div class="stat-card">
+    <h4>{{ t.profile_status }}</h4>
+    <div class="stat-value" style="color: #28a745;">{{ t.active }}</div>
+</div>
+{% endblock %}
